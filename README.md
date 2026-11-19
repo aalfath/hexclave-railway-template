@@ -1,3 +1,5 @@
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template/hexclave?utm_medium=integration&utm_source=button&utm_campaign=hexclave)
+
 # Hexclave on Railway
 
 A Railway template for [Hexclave](https://hexclave.com) (formerly Stack Auth), the open-source user infrastructure platform: authentication, teams, RBAC, API keys, payments and emails, with an admin dashboard and a REST API your apps call through the Hexclave SDKs.
