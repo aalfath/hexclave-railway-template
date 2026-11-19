@@ -19,14 +19,12 @@
 	handle @backend {
 		reverse_proxy 127.0.0.1:{$BACKEND_PORT} {
 			header_up X-Forwarded-Proto https
-			header_up X-Forwarded-Host {host}
 		}
 	}
 
 	handle {
 		reverse_proxy 127.0.0.1:{$DASHBOARD_PORT} {
 			header_up X-Forwarded-Proto https
-			header_up X-Forwarded-Host {host}
 		}
 	}
 

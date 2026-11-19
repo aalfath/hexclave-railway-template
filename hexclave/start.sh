@@ -42,6 +42,20 @@ if [ -z "${HEXCLAVE_SEED_INTERNAL_PROJECT_USER_EMAIL:-}" ] || [ -z "${HEXCLAVE_S
   echo "WARNING: HEXCLAVE_SEED_INTERNAL_PROJECT_USER_EMAIL/PASSWORD not set; no dashboard admin will be created." >&2
 fi
 
+# Wait for the databases (migrations run before the API listens and fail hard if either is down).
+db_url=${HEXCLAVE_DATABASE_CONNECTION_STRING:-${STACK_DATABASE_CONNECTION_STRING:-}}
+ch_url=${HEXCLAVE_CLICKHOUSE_URL:-${STACK_CLICKHOUSE_URL:-}}
+for i in $(seq 1 90); do
+  pg_isready -q -d "$db_url" -t 3 && break
+  [ "$i" = 1 ] && echo "Waiting for Postgres..."
+  sleep 2
+done
+for i in $(seq 1 90); do
+  node -e 'fetch(process.argv[1].replace(/\/+$/, "") + "/ping", { signal: AbortSignal.timeout(3000) }).then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))' "$ch_url" && break
+  [ "$i" = 1 ] && echo "Waiting for ClickHouse..."
+  sleep 2
+done
+
 pids=()
 caddy run --config /etc/hexclave/Caddyfile --adapter caddyfile &
 pids+=($!)
