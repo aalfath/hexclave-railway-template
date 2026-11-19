@@ -1,0 +1,28 @@
+# Local test only (Daytona). Mirrors the Railway template's variables.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment: { POSTGRES_PASSWORD: localtestpw, POSTGRES_DB: railway }
+    volumes: [pg:/var/lib/postgresql/data]
+  clickhouse:
+    build: ./clickhouse
+    environment: { CLICKHOUSE_PASSWORD: localchpw }
+    volumes: [ch:/var/lib/clickhouse]
+  hexclave:
+    build: ./hexclave
+    depends_on: [postgres, clickhouse]
+    ports: ["8080:8080"]
+    environment:
+      PORT: "8080"
+      NEXT_PUBLIC_HEXCLAVE_API_URL: http://localhost:8080
+      NEXT_PUBLIC_HEXCLAVE_DASHBOARD_URL: http://localhost:8080
+      HEXCLAVE_TRUSTED_PROXY: generic
+      HEXCLAVE_DATABASE_CONNECTION_STRING: postgresql://postgres:localtestpw@postgres:5432/railway
+      HEXCLAVE_SERVER_SECRET: ${SERVER_SECRET}
+      CRON_SECRET: localcronsecret
+      HEXCLAVE_CLICKHOUSE_URL: http://clickhouse:8123
+      HEXCLAVE_CLICKHOUSE_ADMIN_PASSWORD: localchpw
+      HEXCLAVE_CLICKHOUSE_EXTERNAL_PASSWORD: localchextpw
+      HEXCLAVE_SEED_INTERNAL_PROJECT_USER_EMAIL: admin@heron-test.dev
+      HEXCLAVE_SEED_INTERNAL_PROJECT_USER_PASSWORD: localadminpw-123456
+volumes: { pg: {}, ch: {} }

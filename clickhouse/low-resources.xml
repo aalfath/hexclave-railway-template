@@ -1,0 +1,4 @@
+<!-- https://clickhouse.com/docs/en/operations/tips#using-less-than-16gb-of-ram -->
+<clickhouse>
+    <mark_cache_size>524288000</mark_cache_size>
+</clickhouse>
