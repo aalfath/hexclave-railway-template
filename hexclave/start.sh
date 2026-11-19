@@ -56,6 +56,19 @@ for i in $(seq 1 90); do
   sleep 2
 done
 
+# Upstream's seed script (1.0.137) fails on every run after the first: it re-updates its own
+# "Development Environment Project" and hits "Environment configuration overrides cannot be
+# changed in a development environment". The self-host guide allows steady-state containers
+# with the seed off, so run it only until it has completed once (admin user and that project
+# exist). Set HEXCLAVE_RUN_SEED_SCRIPT yourself to override.
+if [ -z "${HEXCLAVE_RUN_SEED_SCRIPT:-}${STACK_RUN_SEED_SCRIPT:-}${HEXCLAVE_SKIP_SEED_SCRIPT:-}${STACK_SKIP_SEED_SCRIPT:-}" ]; then
+  seeded=$(psql "$db_url" -tAX -c "SELECT (SELECT count(*) FROM \"Project\" WHERE id = '5f2a45c8-9096-4f0b-b987-7640a47f7a79') + (SELECT count(*) FROM \"ProjectUser\" WHERE \"projectUserId\" = '33e7c043-d2d1-4187-acd3-f91b5ed64b46')" 2>/dev/null || echo 0)
+  if [ "$seeded" = 2 ] || { [ "$seeded" = 1 ] && [ -z "${HEXCLAVE_SEED_INTERNAL_PROJECT_USER_EMAIL:-}" ]; }; then
+    echo "Database already seeded; skipping the seed script."
+    export HEXCLAVE_RUN_SEED_SCRIPT=false STACK_RUN_SEED_SCRIPT=false
+  fi
+fi
+
 pids=()
 caddy run --config /etc/hexclave/Caddyfile --adapter caddyfile &
 pids+=($!)
