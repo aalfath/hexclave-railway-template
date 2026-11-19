@@ -8,6 +8,13 @@
 }
 
 :{$PORT} {
+	# Railway health check: the API's database-backed health endpoint
+	# (Railway's healthcheckPath can't carry a query string).
+	handle /healthz {
+		rewrite * /health?db=1
+		reverse_proxy 127.0.0.1:{$BACKEND_PORT}
+	}
+
 	# Dashboard-only API routes.
 	@dashboard_api path /api/viewer-location /api/development-environment/* /api/remote-development-environment/*
 	handle @dashboard_api {

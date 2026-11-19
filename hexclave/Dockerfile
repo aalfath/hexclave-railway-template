@@ -15,7 +15,7 @@ ENV PORT=8080 \
     XDG_CONFIG_HOME=/tmp/caddy-config \
     XDG_DATA_HOME=/tmp/caddy-data
 
-# Railway runs its own health check (/health?db=1 through Caddy).
+# Railway runs its own health check (/healthz, which Caddy maps to the API's /health?db=1).
 HEALTHCHECK NONE
 
 ENTRYPOINT ["/etc/hexclave/start.sh"]
